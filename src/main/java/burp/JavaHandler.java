@@ -23,7 +23,11 @@ public class JavaHandler {
         }
 
         for (IModule module: modules) {
-            IScanIssue scanIssue = module.start(iHttpRequestResponse, callbacks, helpers);
+            module.init(iHttpRequestResponse, callbacks, helpers);
+        }
+
+        for (IModule module: modules) {
+            IScanIssue scanIssue = module.start();
             if (scanIssue != null) {
                 iScanIssues.add(scanIssue);
             }

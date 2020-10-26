@@ -11,17 +11,11 @@ public class CustomScanIssue implements IScanIssue
     public String detail;
     public String severity;
 
-    public CustomScanIssue(
-            IHttpService httpService,
-            URL url,
-            IHttpRequestResponse[] httpMessages,
-            String name,
-            String detail,
-            String severity) {
-        this.httpService = httpService;
-        this.url = url;
-        this.httpMessages = httpMessages;
+    public CustomScanIssue(String name, URL url, IHttpService httpService, IHttpRequestResponse[] httpMessages, String detail, String severity) {
         this.name = name;
+        this.url = url;
+        this.httpService = httpService;
+        this.httpMessages = httpMessages;
         this.detail = detail;
         this.severity = severity;
     }
