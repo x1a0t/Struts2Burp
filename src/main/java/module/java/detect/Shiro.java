@@ -2,36 +2,28 @@ package module.java.detect;
 
 import burp.*;
 
-import java.net.URL;
 import java.util.List;
 
-public class Shiro implements IModule {
+public class Shiro extends IModule {
+    public Shiro() {
+        moduleName = "Shiro detect";
+    }
 
-    public IScanIssue start(IHttpRequestResponse iHttpRequestResponse, IBurpExtenderCallbacks callbacks, IExtensionHelpers helpers) {
+    public IScanIssue start() {
         IHttpService httpService = iHttpRequestResponse.getHttpService();
         IRequestInfo requestInfo = helpers.analyzeRequest(iHttpRequestResponse);
         IResponseInfo responseInfo = helpers.analyzeResponse(iHttpRequestResponse.getResponse());
-        URL url = requestInfo.getUrl();
 
-        IScanIssue scanIssue = new CustomScanIssue(
-                httpService,
-                url,
-                new IHttpRequestResponse[]{iHttpRequestResponse},
-                "Shiro detect",
-                "Shiro founded",
-                "Information"
-        );
         for (ICookie cookie : responseInfo.getCookies()) {
             if (cookie.getName().contains("rememberMe") || cookie.getValue().contains("deleteMe")) {
-
-                return scanIssue;
+                return creatCustomScanIssue();
             }
         }
 
         List<String> headers = requestInfo.getHeaders();
         for (String header : headers) {
             if (header.contains("rememberMe")) {
-                return scanIssue;
+                return creatCustomScanIssue();
             }
         }
         IParameter newParameter = helpers.buildParameter("rememberMe", "1", (byte) 2);
@@ -41,7 +33,8 @@ public class Shiro implements IModule {
         IResponseInfo newResponseInfo = helpers.analyzeResponse(newHttpRequestResponse.getResponse());
         for (ICookie cookie : newResponseInfo.getCookies()) {
             if (cookie.getName().contains("rememberMe") || cookie.getValue().contains("deleteMe")) {
-                return scanIssue;
+                this.iHttpRequestResponse = newHttpRequestResponse;
+                return creatCustomScanIssue();
             }
         }
 
