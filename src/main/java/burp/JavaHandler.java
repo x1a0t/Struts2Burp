@@ -1,9 +1,7 @@
 package burp;
 
 import module.java.detect.Shiro;
-import module.java.vul.S2_001;
-import module.java.vul.S2_003_005;
-import module.java.vul.S2_007;
+import module.java.vul.*;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -24,6 +22,8 @@ public class JavaHandler {
             modules.add(new S2_001());
             modules.add(new S2_003_005());
             modules.add(new S2_007());
+            modules.add(new S2_008());
+            modules.add(new S2_009());
         }
 
         for (IModule module: modules) {

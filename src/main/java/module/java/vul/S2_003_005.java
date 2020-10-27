@@ -47,6 +47,7 @@ public class S2_003_005 extends IModule {
             IParameter newParameter = helpers.buildParameter(URLEncoder.encode(parameterName), "1", in);
             newRequest = helpers.updateParameter(newRequest, newParameter);
         }
+
         IHttpRequestResponse newHttpRequestResponse = callbacks.makeHttpRequest(httpService, newRequest);
         byte[] response = newHttpRequestResponse.getResponse();
         IResponseInfo newResponseInfo = helpers.analyzeResponse(response);
