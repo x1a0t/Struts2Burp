@@ -5,10 +5,6 @@ import burp.*;
 import java.util.List;
 
 public class Shiro extends IModule {
-    public Shiro() {
-        moduleName = "Shiro detect";
-    }
-
     public IScanIssue start() {
         IHttpService httpService = iHttpRequestResponse.getHttpService();
         IRequestInfo requestInfo = helpers.analyzeRequest(iHttpRequestResponse);
