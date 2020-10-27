@@ -3,7 +3,6 @@ package burp;
 import java.net.URL;
 
 public class IModule {
-    public String moduleName = "";
     public String detail = "No detail";
     public String severity = "High";
 
@@ -22,6 +21,8 @@ public class IModule {
     }
 
     public IScanIssue creatCustomScanIssue() {
+        String[] tmp = this.getClass().getName().split("\\.");
+        String moduleName = tmp[tmp.length-1];
         String name = "[Seagull] " + moduleName;
         IHttpService httpService = iHttpRequestResponse.getHttpService();
         URL url = helpers.analyzeRequest(iHttpRequestResponse).getUrl();
