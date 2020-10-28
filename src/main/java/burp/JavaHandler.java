@@ -3,7 +3,6 @@ package burp;
 import module.java.detect.Shiro;
 import module.java.vul.*;
 
-import java.net.URL;
 import java.util.ArrayList;
 
 public class JavaHandler {
@@ -24,6 +23,7 @@ public class JavaHandler {
             modules.add(new S2_007());
             modules.add(new S2_008());
             modules.add(new S2_009());
+            modules.add(new S2_012());
         }
 
         for (IModule module: modules) {

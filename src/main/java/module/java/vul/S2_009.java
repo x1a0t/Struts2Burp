@@ -3,7 +3,6 @@ package module.java.vul;
 import burp.*;
 import module.Util;
 
-import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
