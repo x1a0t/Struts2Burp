@@ -77,9 +77,11 @@ public class S2_008 extends IModule {
             sb.append("exp1:");
             sb.append("\n");
             sb.append(URLEncoder.encode(exp1).replace("%3D", "=").replace("%26", "&"));
-            sb.append("\n");
+            sb.append("\n\n");
             sb.append("exp2:");
+            sb.append("\n");
             sb.append(URLEncoder.encode(exp2).replace("%3D", "=").replace("%26", "&"));
+            this.detail = sb.toString();
             return creatCustomScanIssue();
         }
 
