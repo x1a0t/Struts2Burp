@@ -28,6 +28,7 @@ public class JavaHandler {
             modules.add(new S2_015());
             modules.add(new S2_016());
             modules.add(new S2_032());
+            modules.add(new S2_045());
         }
 
         for (IModule module: modules) {
