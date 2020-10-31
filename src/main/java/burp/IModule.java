@@ -1,33 +1,60 @@
 package burp;
 
+import module.Util;
+
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class IModule {
-    public String detail = "No detail";
-    public String severity = "High";
-
     public IExtensionHelpers helpers;
     public IBurpExtenderCallbacks callbacks;
     public IHttpRequestResponse iHttpRequestResponse;
+    public IRequestInfo requestInfo;
+    public byte[] request;
+
+    public IHttpService httpService;
+    public URL url;
+    public String detail;
+    public String severity;
+
+    public String randomMark = Util.getRandomString(16);
+    public String[] injectMark = new String[]{randomMark.substring(0, 9), randomMark.substring(9, 16)};
 
     public void init(IHttpRequestResponse iHttpRequestResponse, IBurpExtenderCallbacks callbacks, IExtensionHelpers helpers) {
-        this.iHttpRequestResponse = iHttpRequestResponse;
-        this.callbacks = callbacks;
         this.helpers = helpers;
+        this.callbacks = callbacks;
+        this.iHttpRequestResponse = iHttpRequestResponse;
+        this.requestInfo = helpers.analyzeRequest(iHttpRequestResponse);
+        this.request = iHttpRequestResponse.getRequest();
+
+        this.httpService = iHttpRequestResponse.getHttpService();
+        this.url = helpers.analyzeRequest(iHttpRequestResponse).getUrl();
+        this.detail = "No detail";
+        this.severity = "High";
     }
 
     public IScanIssue start() {
         return null;
     }
 
+    public boolean check() {
+        IHttpRequestResponse newHttpRequestResponse = callbacks.makeHttpRequest(httpService, request);
+        this.iHttpRequestResponse = newHttpRequestResponse;
+        byte[] response = newHttpRequestResponse.getResponse();
+        String responseText = helpers.bytesToString(response);
+
+        if (responseText.contains(randomMark)) {
+            return true;
+        }
+        return false;
+    }
+
     public IScanIssue creatCustomScanIssue() {
         String[] tmp = this.getClass().getName().split("\\.");
         String moduleName = tmp[tmp.length-1];
         String name = "[Seagull] " + moduleName;
-        IHttpService httpService = iHttpRequestResponse.getHttpService();
-        URL url = helpers.analyzeRequest(iHttpRequestResponse).getUrl();
-        IHttpRequestResponse[] iHttpRequestResponses = {iHttpRequestResponse};
-        return new CustomScanIssue(name, url, httpService, iHttpRequestResponses, detail, severity);
+        return new CustomScanIssue(name, url, httpService, new IHttpRequestResponse[]{iHttpRequestResponse}, detail, severity);
     }
 
 }

@@ -6,9 +6,6 @@ import module.Util;
 import java.net.URLEncoder;
 
 public class S2_016 extends IModule {
-    public String randomMark = Util.getRandomString(16);
-    public String[] injectMark = new String[]{randomMark.substring(0, 9), randomMark.substring(9, 16)};
-
     // TODO
     //redirectAction:和action: 也可触发漏洞
     public String poc =
@@ -42,22 +39,13 @@ public class S2_016 extends IModule {
 
     @Override
     public IScanIssue start() {
-        IHttpService httpService = iHttpRequestResponse.getHttpService();
-        IRequestInfo requestInfo = helpers.analyzeRequest(iHttpRequestResponse);
-        byte[] request = iHttpRequestResponse.getRequest();
-
         byte in = (byte) 0;
         if (requestInfo.getMethod().equals("POST")) {
             in = (byte) 1;
         }
         IParameter newParameter = helpers.buildParameter(URLEncoder.encode(poc), "1", in);
-        byte[] newRequest = helpers.updateParameter(request, newParameter);
-
-        IHttpRequestResponse newHttpRequestResponse = callbacks.makeHttpRequest(httpService, newRequest);
-        byte[] response = newHttpRequestResponse.getResponse();
-        String responseText = helpers.bytesToString(response);
-        if (responseText.contains(randomMark)) {
-            this.iHttpRequestResponse = newHttpRequestResponse;
+        request = helpers.updateParameter(request, newParameter);
+        if (check()) {
             this.detail = URLEncoder.encode(exp);
             return creatCustomScanIssue();
         }

