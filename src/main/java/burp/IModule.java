@@ -39,15 +39,16 @@ public class IModule {
     }
 
     public boolean check() {
+        return this.check(randomMark);
+    }
+
+    public boolean check(String mark) {
         IHttpRequestResponse newHttpRequestResponse = callbacks.makeHttpRequest(httpService, request);
         this.iHttpRequestResponse = newHttpRequestResponse;
         byte[] response = newHttpRequestResponse.getResponse();
         String responseText = helpers.bytesToString(response);
 
-        if (responseText.contains(randomMark)) {
-            return true;
-        }
-        return false;
+        return responseText.contains(mark);
     }
 
     public IScanIssue creatCustomScanIssue() {

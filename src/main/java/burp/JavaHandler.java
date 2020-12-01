@@ -10,6 +10,7 @@ public class JavaHandler {
 
     public JavaHandler() {
         modules.add(new Shiro());
+        modules.add(new ELInject());
     }
 
     public ArrayList<IScanIssue> passiveScan(IHttpRequestResponse iHttpRequestResponse, IBurpExtenderCallbacks callbacks, IExtensionHelpers helpers) {
