@@ -1,5 +1,7 @@
 # Struts2Burp
 A burp extension, learning and coding~
+
+Only check .do and .action
 # Support
 * S2-001
 * S2-003/S2-005
@@ -14,3 +16,6 @@ A burp extension, learning and coding~
 * S2-032
 * S2-045
 * S2-046
+# TODO
+- [ ] Identify struts2 more accurately
+- [ ] WAF bypass
