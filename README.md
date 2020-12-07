@@ -1,9 +1,6 @@
-# Seagull
+# Struts2Burp
 A burp extension, learning and coding~
 # Support
-## framework detect
-* shiro
-## vul scan
 * S2-001
 * S2-003/S2-005
 * S2-007

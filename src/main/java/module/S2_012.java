@@ -1,10 +1,8 @@
-package module.java.vul;
+package module;
 
 import burp.*;
-import module.Util;
 
 import java.net.URLEncoder;
-import java.util.Arrays;
 import java.util.List;
 
 public class S2_012 extends IModule {

@@ -1,4 +1,4 @@
-package module.java.vul;
+package module;
 
 import burp.*;
 

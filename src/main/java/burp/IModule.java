@@ -1,10 +1,6 @@
 package burp;
 
-import module.Util;
-
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 public class IModule {
     public IExtensionHelpers helpers;
@@ -54,7 +50,7 @@ public class IModule {
     public IScanIssue creatCustomScanIssue() {
         String[] tmp = this.getClass().getName().split("\\.");
         String moduleName = tmp[tmp.length-1];
-        String name = "[Seagull] " + moduleName;
+        String name = String.format("[%s] %s", BurpExtender.extName, moduleName);
         return new CustomScanIssue(name, url, httpService, new IHttpRequestResponse[]{iHttpRequestResponse}, detail, severity);
     }
 

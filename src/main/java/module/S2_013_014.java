@@ -1,11 +1,10 @@
-package module.java.vul;
+package module;
 
 import burp.*;
-import module.Util;
+import burp.Util;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class S2_013_014 extends IModule {
     public String poc =

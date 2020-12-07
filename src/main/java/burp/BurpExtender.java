@@ -1,6 +1,8 @@
 package burp;
 
 
+import module.*;
+
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
@@ -11,12 +13,26 @@ public class BurpExtender implements IBurpExtender, IScannerCheck {
     public static IExtensionHelpers helpers;
     public static PrintWriter stdout;
     public static PrintWriter stderr;
-    public static ArrayList<URL> filterUrls = new ArrayList<URL>();
-    public static String[] blackUrls = {".css", ".js", ".jpg", ".jpeg", ".gif", ".png", ".svg", ".ico", ".json"};
+    public static ArrayList<URL> filterUrls = new ArrayList<>();
+    public static ArrayList<IModule> modules = new ArrayList<>();
 
+    public static String extName = "Struts2Burp";
 
-    public String extName = "Seagull";
-
+    public BurpExtender() {
+        modules.add(new S2_001());
+        modules.add(new S2_003_005());
+        modules.add(new S2_007());
+        modules.add(new S2_008());
+        modules.add(new S2_009());
+        modules.add(new S2_012());
+        modules.add(new S2_013_014());
+        modules.add(new S2_015());
+        modules.add(new S2_016());
+        modules.add(new S2_019());
+        modules.add(new S2_032());
+        modules.add(new S2_045());
+        modules.add(new S2_046());
+    }
     public void registerExtenderCallbacks(IBurpExtenderCallbacks iBurpExtenderCallbacks) {
         callbacks = iBurpExtenderCallbacks;
         helpers = callbacks.getHelpers();
@@ -29,7 +45,7 @@ public class BurpExtender implements IBurpExtender, IScannerCheck {
     }
 
     public List<IScanIssue> doPassiveScan(IHttpRequestResponse iHttpRequestResponse) {
-        ArrayList<IScanIssue> iScanIssues = new ArrayList<IScanIssue>();
+        ArrayList<IScanIssue> iScanIssues = new ArrayList<>();
         URL url = helpers.analyzeRequest(iHttpRequestResponse).getUrl();
 
         if (filterUrls.contains(url)) {
@@ -38,20 +54,20 @@ public class BurpExtender implements IBurpExtender, IScannerCheck {
         filterUrls.add(url);
 
         String path = url.getPath().split(";")[0];
-        for(String ext: blackUrls) {
-            if (path.endsWith(ext)) {
-                return null;
+
+        if (path.endsWith(".do") || path.endsWith(".action")) {
+            for (IModule module: modules) {
+                module.init(iHttpRequestResponse, callbacks, helpers);
+            }
+
+            for (IModule module: modules) {
+                IScanIssue scanIssue = module.start();
+                if (scanIssue != null) {
+                    iScanIssues.add(scanIssue);
+                }
             }
         }
-        //java检测
-        String[] javaExtensions = {".jsp", ".jspx", ".do", ".action"};
-        for(String ext: javaExtensions) {
-            if (path.endsWith(ext)) {
-                JavaHandler javaHandler = new JavaHandler();
-                iScanIssues = javaHandler.passiveScan(iHttpRequestResponse, callbacks, helpers);
-                break;
-            }
-        }
+
         return iScanIssues;
     }
 
