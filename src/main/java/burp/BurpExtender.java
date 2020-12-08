@@ -48,14 +48,13 @@ public class BurpExtender implements IBurpExtender, IScannerCheck {
         ArrayList<IScanIssue> iScanIssues = new ArrayList<>();
         URL url = helpers.analyzeRequest(iHttpRequestResponse).getUrl();
 
-        if (filterUrls.contains(url)) {
-            return null;
-        }
-        filterUrls.add(url);
-
         String path = url.getPath().split(";")[0];
 
         if (path.endsWith(".do") || path.endsWith(".action")) {
+            if (filterUrls.contains(url)) {
+                return null;
+            }
+            filterUrls.add(url);
             for (IModule module: modules) {
                 module.init(iHttpRequestResponse, callbacks, helpers);
             }
