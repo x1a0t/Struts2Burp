@@ -16,6 +16,8 @@ Only check .do and .action
 * S2-032
 * S2-045
 * S2-046
+* S2-059
+* S2-061
 # TODO
 - [ ] Identify struts2 more accurately
 - [ ] WAF bypass
