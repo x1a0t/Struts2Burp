@@ -32,6 +32,7 @@ public class BurpExtender implements IBurpExtender, IScannerCheck {
         modules.add(new S2_032());
         modules.add(new S2_045());
         modules.add(new S2_046());
+        modules.add(new S2_057());
         modules.add(new S2_059());
         modules.add(new S2_061());
     }
