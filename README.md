@@ -1,8 +1,15 @@
 # Struts2Burp
-A burp extension, learning and coding~
+一款检测Struts2 RCE漏洞的burp被动扫描插件，仅检测url后缀为`.do`以及`.action`的数据包
 
-Only check .do and .action
-# Support
+**本项目旨在学习以及自我项目检测，请勿用于非法用途！**
+# 使用
+```
+git clone https://github.com/x1a0t/Struts2Burp
+cd Struts2Burp
+mvn clean package -DskipTests
+```
+将目录`target`下生成的jar包导入burp即可
+# 检测范围
 * S2-001
 * S2-003/S2-005
 * S2-007
@@ -16,8 +23,7 @@ Only check .do and .action
 * S2-032
 * S2-045
 * S2-046
+* S2-057
 * S2-059
 * S2-061
-# TODO
-- [ ] Identify struts2 more accurately
-- [ ] WAF bypass
+* ...

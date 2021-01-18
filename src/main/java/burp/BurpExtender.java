@@ -17,6 +17,9 @@ public class BurpExtender implements IBurpExtender, IScannerCheck {
     public static ArrayList<IModule> modules = new ArrayList<>();
 
     public static String extName = "Struts2Burp";
+    public static String banner =
+            "[+] https://github.com/x1a0t/Struts2Burp\n" +
+            "[+] Load Success!";
 
     public BurpExtender() {
         modules.add(new S2_001());
@@ -45,6 +48,7 @@ public class BurpExtender implements IBurpExtender, IScannerCheck {
 
         stdout = new PrintWriter(callbacks.getStdout(), true);
         stderr = new PrintWriter(callbacks.getStderr(), true);
+        stdout.println(banner);
     }
 
     public List<IScanIssue> doPassiveScan(IHttpRequestResponse iHttpRequestResponse) {
