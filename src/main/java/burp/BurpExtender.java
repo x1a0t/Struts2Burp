@@ -3,18 +3,20 @@ package burp;
 
 import module.*;
 
+import java.awt.*;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BurpExtender implements IBurpExtender, IScannerCheck {
+public class BurpExtender implements IBurpExtender, IScannerCheck, ITab {
     public static IBurpExtenderCallbacks callbacks;
     public static IExtensionHelpers helpers;
     public static PrintWriter stdout;
     public static PrintWriter stderr;
     public static ArrayList<URL> filterUrls = new ArrayList<>();
     public static ArrayList<IModule> modules = new ArrayList<>();
+    public static final List<LogEntry> log = new ArrayList<>();
 
     public static String extName = "Struts2Burp";
     public static String banner =
@@ -45,6 +47,7 @@ public class BurpExtender implements IBurpExtender, IScannerCheck {
 
         callbacks.setExtensionName(extName);
         callbacks.registerScannerCheck(this);
+        callbacks.addSuiteTab(this);
 
         stdout = new PrintWriter(callbacks.getStdout(), true);
         stderr = new PrintWriter(callbacks.getStderr(), true);
@@ -58,12 +61,13 @@ public class BurpExtender implements IBurpExtender, IScannerCheck {
         String path = url.getPath().split(";")[0];
 
         if (path.endsWith(".do") || path.endsWith(".action")) {
-            if (filterUrls.contains(url)) {
-                return null;
-            }
-            filterUrls.add(url);
+            //貌似burp的被动扫描自己有
+//            if (filterUrls.contains(url)) {
+//                return null;
+//            }
+//            filterUrls.add(url);
             for (IModule module: modules) {
-                module.init(iHttpRequestResponse, callbacks, helpers);
+                module.init(iHttpRequestResponse);
             }
 
             for (IModule module: modules) {
@@ -87,5 +91,16 @@ public class BurpExtender implements IBurpExtender, IScannerCheck {
         } else {
             return 0;
         }
+    }
+
+    @Override
+    public String getTabCaption() {
+        return extName;
+    }
+
+    @Override
+    public Component getUiComponent() {
+        GUI gui = new GUI();
+        return gui.$$$getRootComponent$$$();
     }
 }
