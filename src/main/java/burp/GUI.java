@@ -4,24 +4,16 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.*;
 
 public class GUI implements IMessageEditorController {
     private JPanel rootPanel;
     public static HttpLogTable logTable;
-    private JSplitPane splitPane;
+    private JSplitPane splitPanel;
     private JButton clearAllButton;
-    private JTabbedPane tabbedPane1;
-    private JTextArea execResultArea;
-    private JTextField cmdField;
-    private JButton execButton;
     private JButton clearOtherButton;
-    private JPanel expConfigPane;
-    private JPanel exploitPanel;
-    private JLabel vulUrlLabel;
-    private JLabel vulNameLabel;
+    private JPanel buttonPanel;
     public static IMessageEditor requestViewer;
     public static IMessageEditor responseViewer;
     public static IHttpRequestResponse currentlyDisplayedItem;
@@ -47,7 +39,7 @@ public class GUI implements IMessageEditorController {
         clearOtherButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                BurpExtender.log.removeIf(logEntry -> logEntry.vulName.equals(""));
+                BurpExtender.log.removeIf(logEntry -> logEntry.vulClass == null);
             }
         });
 
@@ -55,38 +47,31 @@ public class GUI implements IMessageEditorController {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON3) {
-
                     int row = logTable.getSelectedRow();
                     logTable.setRowSelectionInterval(row, row);
                     LogEntry logEntry = BurpExtender.log.get(row);
-                    if (BurpExtender.log.get(row).vulClass != null) {
-                        JPopupMenu jPopupMenu = new JPopupMenu();
-                        JMenuItem send_to_exploit = new JMenuItem("Send to exploit");
 
-                        send_to_exploit.addActionListener(new ActionListener() {
+                    JPopupMenu jPopupMenu = new JPopupMenu();
+
+                    if (logEntry.vulClass != null) {
+                        JMenuItem exp_in_repeater = new JMenuItem("exp in Repeater");
+                        exp_in_repeater.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
-                                iModule = logEntry.vulClass;
-
-                                vulUrlLabel.setText(logEntry.url.toString());
-                                vulNameLabel.setText(logEntry.vulName);
+                                byte[] exploit = logEntry.vulClass.makeExploit();
+                                IHttpService httpService = logEntry.requestResponse.getHttpService();
+                                String protocol = httpService.getProtocol();
+                                BurpExtender.callbacks.sendToRepeater(httpService.getHost(), httpService.getPort(), protocol.startsWith("https://"), exploit, null);
                             }
                         });
-                        jPopupMenu.add(send_to_exploit);
-                        jPopupMenu.show(logTable, e.getX(), e.getY());
+                        jPopupMenu.add(exp_in_repeater);
                     }
+
+                    jPopupMenu.show(logTable, e.getX(), e.getY());
                 }
             }
         });
 
-        execButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String cmd = cmdField.getText();
-                String result = iModule.exploit(cmd);
-                execResultArea.setText(result);
-            }
-        });
     }
 
     /**
@@ -99,52 +84,18 @@ public class GUI implements IMessageEditorController {
     private void $$$setupUI$$$() {
         createUIComponents();
         rootPanel = new JPanel();
-        rootPanel.setLayout(new GridLayoutManager(1, 1, new Insets(5, 5, 5, 5), -1, -1));
-        tabbedPane1 = new JTabbedPane();
-        rootPanel.add(tabbedPane1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(200, 200), null, 0, false));
-        final JPanel panel1 = new JPanel();
-        panel1.setLayout(new GridLayoutManager(2, 1, new Insets(5, 5, 5, 5), -1, -1));
-        tabbedPane1.addTab("LogTable", panel1);
-        splitPane.setOrientation(0);
-        panel1.add(splitPane, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(200, 200), null, 0, false));
-        final JPanel panel2 = new JPanel();
-        panel2.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
-        panel1.add(panel2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, true));
+        rootPanel.setLayout(new GridLayoutManager(2, 1, new Insets(5, 5, 5, 5), -1, -1));
+        buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+        rootPanel.add(buttonPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, true));
         clearOtherButton = new JButton();
         clearOtherButton.setText("Clear Other");
-        panel2.add(clearOtherButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        buttonPanel.add(clearOtherButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         clearAllButton = new JButton();
         clearAllButton.setText("Clear All");
-        panel2.add(clearAllButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        exploitPanel = new JPanel();
-        exploitPanel.setLayout(new GridLayoutManager(2, 1, new Insets(5, 5, 5, 5), -1, -1));
-        tabbedPane1.addTab("Exploit", exploitPanel);
-        execResultArea = new JTextArea();
-        execResultArea.setText("");
-        execResultArea.setToolTipText("");
-        exploitPanel.add(execResultArea, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
-        expConfigPane = new JPanel();
-        expConfigPane.setLayout(new GridLayoutManager(2, 3, new Insets(0, 0, 0, 0), -1, -1));
-        expConfigPane.setToolTipText("");
-        exploitPanel.add(expConfigPane, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        expConfigPane.setBorder(BorderFactory.createTitledBorder(null, "", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
-        cmdField = new JTextField();
-        expConfigPane.add(cmdField, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-        execButton = new JButton();
-        execButton.setText("Button");
-        expConfigPane.add(execButton, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label1 = new JLabel();
-        label1.setText("Command:");
-        expConfigPane.add(label1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label2 = new JLabel();
-        label2.setText("VulInfo:");
-        expConfigPane.add(label2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        vulUrlLabel = new JLabel();
-        vulUrlLabel.setText("Label");
-        expConfigPane.add(vulUrlLabel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        vulNameLabel = new JLabel();
-        vulNameLabel.setText("Label");
-        expConfigPane.add(vulNameLabel, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        buttonPanel.add(clearAllButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        splitPanel.setOrientation(0);
+        rootPanel.add(splitPanel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(200, 200), null, 0, false));
     }
 
     /**
@@ -155,14 +106,14 @@ public class GUI implements IMessageEditorController {
     }
 
     private void createUIComponents() {
-        splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        splitPane.setDividerLocation(0.5);
+        splitPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        splitPanel.setDividerLocation(0.5);
 
         HttpLogTableModel model = new HttpLogTableModel();
         logTable = new HttpLogTable(model);
 
         JScrollPane scrollPane = new JScrollPane(logTable);
-        splitPane.setTopComponent(scrollPane);
+        splitPanel.setTopComponent(scrollPane);
 
         JTabbedPane tabs = new JTabbedPane();
         requestViewer = BurpExtender.callbacks.createMessageEditor(this, false);
@@ -170,11 +121,11 @@ public class GUI implements IMessageEditorController {
 
         tabs.addTab("Request", requestViewer.getComponent());
         tabs.addTab("Response", responseViewer.getComponent());
-        splitPane.setBottomComponent(tabs);
+        splitPanel.setBottomComponent(tabs);
 
 
         BurpExtender.callbacks.customizeUiComponent(logTable);
-        BurpExtender.callbacks.customizeUiComponent(splitPane);
+        BurpExtender.callbacks.customizeUiComponent(splitPanel);
         BurpExtender.callbacks.customizeUiComponent(scrollPane);
     }
 

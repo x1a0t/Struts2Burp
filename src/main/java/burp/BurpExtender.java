@@ -27,19 +27,18 @@ public class BurpExtender implements IBurpExtender, IScannerCheck, ITab {
         modules.add(new S2_001());
         modules.add(new S2_003_005());
         modules.add(new S2_007());
-        modules.add(new S2_008());
         modules.add(new S2_009());
         modules.add(new S2_012());
         modules.add(new S2_013_014());
         modules.add(new S2_015());
         modules.add(new S2_016());
-        modules.add(new S2_019());
         modules.add(new S2_032());
         modules.add(new S2_045());
         modules.add(new S2_046());
         modules.add(new S2_057());
         modules.add(new S2_059());
         modules.add(new S2_061());
+        modules.add(new Devmode());
     }
     public void registerExtenderCallbacks(IBurpExtenderCallbacks iBurpExtenderCallbacks) {
         callbacks = iBurpExtenderCallbacks;

