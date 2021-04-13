@@ -22,16 +22,15 @@ public class BurpExtender implements IBurpExtender, IScannerCheck {
             "[+] Load Success!";
 
     public BurpExtender() {
+        modules.add(new Devmode());
         modules.add(new S2_001());
         modules.add(new S2_003_005());
         modules.add(new S2_007());
-        modules.add(new S2_008());
         modules.add(new S2_009());
         modules.add(new S2_012());
         modules.add(new S2_013_014());
         modules.add(new S2_015());
         modules.add(new S2_016());
-        modules.add(new S2_019());
         modules.add(new S2_032());
         modules.add(new S2_045());
         modules.add(new S2_046());
@@ -58,10 +57,10 @@ public class BurpExtender implements IBurpExtender, IScannerCheck {
         String path = url.getPath().split(";")[0];
 
         if (path.endsWith(".do") || path.endsWith(".action")) {
-            if (filterUrls.contains(url)) {
-                return null;
-            }
-            filterUrls.add(url);
+//            if (filterUrls.contains(url)) {
+//                return null;
+//            }
+//            filterUrls.add(url);
             for (IModule module: modules) {
                 module.init(iHttpRequestResponse, callbacks, helpers);
             }

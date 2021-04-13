@@ -14,6 +14,8 @@ public class IModule {
     public String detail;
     public String severity;
 
+    public String poc = "";
+    public String exp = "";
     public String randomMark = Util.getRandomString(16);
     public String[] injectMark = new String[]{randomMark.substring(0, 9), randomMark.substring(9, 16)};
 
