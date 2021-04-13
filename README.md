@@ -9,6 +9,10 @@ cd Struts2Burp
 mvn clean package -DskipTests
 ```
 将目录`target`下生成的jar包导入burp即可
+
+GUI只是个流量列表，同时可简单生成存在的漏洞的exp，在列表中漏洞所在列右键
+
+无过多需求可直接采用原版，切换到mini分支即可
 # 检测范围
 * S2-001
 * S2-003/S2-005
