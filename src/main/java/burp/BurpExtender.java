@@ -100,6 +100,6 @@ public class BurpExtender implements IBurpExtender, IScannerCheck, ITab {
     @Override
     public Component getUiComponent() {
         GUI gui = new GUI();
-        return gui.$$$getRootComponent$$$();
+        return gui.getRootComponent();
     }
 }
